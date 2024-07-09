@@ -1,13 +1,15 @@
 package org.example.userservicemay24.controller;
 
 import org.example.userservicemay24.dtos.LoginRequestDto;
+import org.example.userservicemay24.dtos.LogoutRequestDto;
 import org.example.userservicemay24.dtos.SignUpRequestDto;
 import org.example.userservicemay24.dtos.ValidationTokenRequestDto;
-import org.example.userservicemay24.exceptions.SignupRequestException;
+import org.example.userservicemay24.exceptions.*;
 import org.example.userservicemay24.models.Token;
 import org.example.userservicemay24.models.User;
 import org.example.userservicemay24.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,15 +41,43 @@ public class UserController {
 
     @PostMapping("/login")
     private ResponseEntity<Token> login(@RequestBody LoginRequestDto requestDto) {
-        return null;
+        try {
+            if (requestDto.getEmail().isEmpty() || requestDto.getPassword().isEmpty())
+                throw new InvalidLoginRequestException("Email or Password cannot be empty");
+            Token login = this.userService.login(requestDto.getEmail(), requestDto.getPassword());
+            return new ResponseEntity<>(login, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/validate-token")
     private ResponseEntity<Token> validateToken(@RequestBody ValidationTokenRequestDto requestDto) {
-        return null;
+        try {
+            if (requestDto.getToken().isEmpty())
+                throw new Exception("Token cannot be empty");
+            Token token = this.userService.validateToken(requestDto.getToken());
+            return new ResponseEntity<>(token, HttpStatus.OK);
+        } catch (ExpiredTokenExcepton ETE) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    private void validationRequest(SignUpRequestDto requestDto) {
+    @PostMapping("/logout")
+    private ResponseEntity<Void> logout(@RequestBody LogoutRequestDto requestDto) {
+        try {
+            if (requestDto.getToken().isEmpty())
+                throw new InvalidTokenException("Token cannot be empty");
+            this.userService.logout(requestDto.getToken());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validationRequest(SignUpRequestDto requestDto) throws SignupRequestException {
         if (requestDto.getName().isEmpty()) {
             throw new SignupRequestException("user name should be present");
         }
