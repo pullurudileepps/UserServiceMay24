@@ -48,9 +48,13 @@ public class UserServiceImpl implements UserService {
 
         boolean matches = this.userServiceConfigs.getBCryptPasswordInstance().matches(password, user.getPassword());
         if (matches) {
+            int count = this.tokenRepository.filterActiveUsers(user.getId());
+            if(count > 2){
+                throw new InvalidLoginRequestException("can't be allow more than 2 session");
+            }
             String value = RandomStringUtils.randomAlphanumeric(128);
             Calendar c = Calendar.getInstance();
-            c.add(Calendar.MINUTE, 3);
+            c.add(Calendar.HOUR, 1);
             Date everyFiveMinutes = c.getTime();//EPOC
             Token token = new Token();
             token.setUser(user);
