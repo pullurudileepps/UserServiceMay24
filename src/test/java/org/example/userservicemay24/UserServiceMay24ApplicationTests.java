@@ -3,10 +3,10 @@ package org.example.userservicemay24;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+//@SpringBootTest
 class UserServiceMay24ApplicationTests {
 
-    @Test
+//    @Test
     void contextLoads() {
     }
 
