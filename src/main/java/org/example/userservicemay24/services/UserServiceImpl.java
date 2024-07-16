@@ -71,9 +71,9 @@ public class UserServiceImpl implements UserService {
     public Token validateToken(String tokenValue) throws InvalidTokenException, ExpiredTokenExcepton {
         Optional<Token> tokenByValue = this.tokenRepository.findTokenByValue(tokenValue);
         Token token = tokenByValue.orElseThrow(() -> new InvalidTokenException("Please use valid token"));
-        Date now = new Date();
-        if (now.after(token.getExpiresAt()) || !token.isActive())
-            throw new ExpiredTokenExcepton("the token has expired");
+//        Date now = new Date();
+//        if (now.after(token.getExpiresAt()) || !token.isActive())
+//            throw new ExpiredTokenExcepton("the token has expired");
         return token;
     }
 
